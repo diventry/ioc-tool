@@ -37,7 +37,7 @@ ip.command('single', {
         if (tags.length > 0) item.tags = tags
 
         packet.ips.push(item)
-        const ret = await Post("ioc/tx", packet)
+        const ret = await Post("ioc/rx", packet)
         console.log(ret)
     }
 }).option('tags', {
@@ -80,7 +80,7 @@ ip.command('plaintext', {
 
             progress.update(processed)
 
-            const ret = await Post("ioc/tx", packet)
+            const ret = await Post("ioc/rx", packet)
             if (ret.error) {
                 progress.stop()
                 console.log(ret)

@@ -1,7 +1,9 @@
-const fs = require('fs');
+const fs = require('fs')
 const axios = require("axios")
+const cliProgress = require('cli-progress')
+const readline = require("readline")
 
-var ApiPath = '/';
+var ApiPath = '/api/';
 
 const Networks = []
 
@@ -20,7 +22,7 @@ async function Get(resource, ttl = 0) {
     const url = `${GetNetwork()}${ApiPath}${resource}`
     // console.log("Calling: "+url)
     try {
-        var response =  await axios.get(url)
+        var response = await axios.get(url)
         return (response.data)
     } catch (e) {
         return ({
@@ -30,10 +32,10 @@ async function Get(resource, ttl = 0) {
 }
 
 async function Post(resource, data, ttl = 0) {
-    // console.log(`${GetNetwork()}${ApiPath}${resource}`, data)
+    // console.log(`${GetNetwork()}${ApiPath}${resource}`)
     try {
         var response = await axios.post(`${GetNetwork()}${ApiPath}${resource}`, data)
-        
+
         return (response.data)
     } catch (e) {
         return ({
@@ -43,78 +45,110 @@ async function Post(resource, data, ttl = 0) {
 }
 
 function Init(options) {
-    const net = [];
-    const t = options.server.split(",");
-    t.map((e) => {
-        net.push(e.trim())
-    })
-    SetNetwork(net);
-    ApiPath = options.api;
 
-    if(process.env.API_KEY)
+    if(options.api)
+        ApiPath = options.api;
+
+    if (process.env.API_KEY)
         axios.defaults.headers.common['Authorization'] = process.env.API_KEY
+
+    if (!options.server && process.env.SERVER)
+        SetNetwork([process.env.SERVER])
+    else if (options.server) {
+        const net = [];
+        const t = options.server.split(",");
+        t.map((e) => {
+            net.push(e.trim())
+        })
+        SetNetwork(net);
+    }
 }
 
 function RouteNetwork(rcs) {
     return (`${GetNetwork()}${ApiPath}${rcs}`)
 }
 
+async function SendFile(file, bulk = 100, useProgress = true) {
+    return (new Promise((accept) => {
+        const allIps = []
+        var counter = 0
+        var processed = 0
+        var stop = false
 
-class MultiQueueList {
-    constructor() {
-        this.receivers = {}
-    }
+        var progress
 
-    push(id, data) {
-        if (!this.scheduler) this.scheduler = setTimeout(this.tick.bind(this), 100)
-        this.receivers[id].queue.push(data);
-    }
-    receiver(id, cb) {
-        this.receivers[id] = {
-            queue: [],
-            cb
+        if (useProgress === true)
+            progress = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
+
+        async function dump() {
+            if (allIps.length === 0 && stop === true) {
+                if (useProgress === true)
+                    progress.stop()
+                accept()
+                return
+            }
+
+            const packet = {
+                ips: []
+            }
+            
+            for (var a = 0; a < parseInt(bulk); a++) {
+                const item = allIps.shift()
+                if (!item) break
+                packet.ips.push(item)
+                processed++
+            }
+
+            if (useProgress === true)
+                progress.update(processed)
+
+            const ret = await Post("ioc/rx", packet)
+            if (ret.error) {
+                if (useProgress === true)
+                    progress.stop()
+
+                accept(ret.error)
+                return
+            }
+            setTimeout(dump, 100)
         }
-    }
+        setTimeout(dump)
 
-    async tick() {
-        var count = 0;
+        try {
+            const rl = readline.createInterface({
+                input: fs.createReadStream(file),
+                crlfDelay: Infinity
+            });
 
-        for (var id in this.receivers) {
-            const entry = this.receivers[id];
-            const { queue, cb } = entry;
+            rl.on('line', (line) => {
+                // line += " scanner,trickbot"
+                const sep = line.trim().split(" ")
+                if (sep.length === 0) return
 
-            const list = [];
+                const item = {}
+                item.ip = sep[0]
+                sep.shift()
+                const tags = sep
+                    .join(" ")
+                    .split(",")
+                    .map((a) => a.trim())
+                    .filter((a) => a.length > 0)
+                if (tags.length > 0) item.tags = tags
+                if (item.ip.length === 0) return
+                allIps.push(item)
+                counter++
+                if (useProgress === true)
+                    progress.start(counter, processed)
+            });
 
-            for (var a = 0; a < 200; a++) {
-                const item = queue.shift();
-                if (!item) break;
-                list.push(item)
-                count++;
-            }
-            if (list.length > 0) {
-                await cb(list)
-            }
+            rl.on('close', () => {
+                stop = true
+            })
+        } catch (err) {
+            console.error(err);
         }
-        if (count > 0)
-            this.scheduler = setImmediate(this.tick.bind(this))
-        else
-            this.scheduler = setTimeout(this.tick.bind(this), 1000)
-    }
+    }))
 
-
-    async waitEnd() {
-        await new Promise((accept) => {
-            function check() {
-                var count = 0;
-                for (var id in this.receivers) count += this.receivers[id].queue.length;
-                if (count > 0) {
-                    return (setTimeout(check, 1000))
-                }
-                accept();
-            }
-            setTimeout(check, 1000)
-        })
-    }
 }
 
 module.exports = {
@@ -125,6 +159,6 @@ module.exports = {
     GetNetwork,
     // SetNetwork,
     RouteNetwork,
-    // Networks,
+    SendFile,
     // MultiQueueList
 }
