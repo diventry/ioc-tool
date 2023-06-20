@@ -46,7 +46,7 @@ async function Post(resource, data, ttl = 0) {
 
 function Init(options) {
 
-    if(options.api)
+    if (options.api)
         ApiPath = options.api;
 
     if (process.env.API_KEY)
@@ -68,7 +68,7 @@ function RouteNetwork(rcs) {
     return (`${GetNetwork()}${ApiPath}${rcs}`)
 }
 
-async function SendFile(file, bulk = 100, useProgress = true, useDeDup=true) {
+async function SendFile(file, bulk = 100, useProgress = true, useDeDup = true) {
     return (new Promise(async (accept) => {
 
         // cela ne pose pas de soucis de faire du dédoublage sur un hash
@@ -76,29 +76,30 @@ async function SendFile(file, bulk = 100, useProgress = true, useDeDup=true) {
         // optimisé pour une usage plus large. Le cas échéant utiliser Level
         const deDup = {}
         const lastFile = `${file}.last`
-        if(useDeDup === true && process.env.FULL !== "yes") {
+        if (useDeDup !== false && process.env.FULL !== "yes") {
             // load last file
             try {
                 const lines = fs.readFileSync(lastFile).toString().split("\n")
-                for(var line of lines)
-                    if(line.length > 0) deDup[line] = true
-                console.log(`Last file loaded ${lastFile}`)
-            } catch(e) {}
-
-            // rebuild file
-            try {
-                const oldFile = file
-                file = `${file}.current`
-                const newLines = []
-                const lines = fs.readFileSync(oldFile).toString().split("\n")
-                for(var line of lines) {
-                    if(line.length === 0) continue
-                    if(deDup[line] !== true) 
-                        newLines.push(`${line}`)
+                for (var line of lines) {
+                    deDup[line] = true
                 }
-                fs.writeFileSync(file, newLines.join("\n"))
-                console.log(`Differencial in ${file}`)
-            } catch(e) { console.log(e) }
+                    
+                console.log(`Last file loaded ${lastFile}`)
+            } catch (e) { }
+
+            // // rebuild file
+            // try {
+            //     const newLines = []
+            //     const lines = fs.readFileSync(file).toString().split("\n")
+            //     for (var line of lines) {
+            //         if (line.length === 0) continue
+            //         if (deDup[line] !== true)
+            //             newLines.push(`${line}`)
+            //     }
+            //     fs.writeFileSync(file, newLines.join("\n"))
+            //     console.log(`Differencial in ${file}`)
+
+            // } catch (e) { console.log(e) }
         }
 
         /// process file
@@ -119,7 +120,6 @@ async function SendFile(file, bulk = 100, useProgress = true, useDeDup=true) {
                     console.log(`Saving last file to ${lastFile}`)
                     fs.renameSync(file, lastFile)
                 }
-                    
                 accept()
                 return
             }
@@ -127,7 +127,7 @@ async function SendFile(file, bulk = 100, useProgress = true, useDeDup=true) {
             const packet = {
                 ips: []
             }
-            
+
             for (var a = 0; a < parseInt(bulk); a++) {
                 const item = allIps.shift()
                 if (!item) break
@@ -140,10 +140,10 @@ async function SendFile(file, bulk = 100, useProgress = true, useDeDup=true) {
 
             const ret = await Post("ioc/rx", packet)
             if (ret.error) {
-                if (useProgress === true) 
+                if (useProgress === true) {
                     progress.stop()
-                
-                
+                    console.log(ret)
+                }
                 accept(ret.error)
                 return
             }
@@ -152,12 +152,15 @@ async function SendFile(file, bulk = 100, useProgress = true, useDeDup=true) {
         setTimeout(dump)
 
         try {
+            console.log(`Reading ${file}`)
             const rl = readline.createInterface({
                 input: fs.createReadStream(file),
                 crlfDelay: Infinity
             });
 
             rl.on('line', (line) => {
+                if (useDeDup === true && deDup[line] === true) return
+                // console.log(deDup[line], line)
                 // line += " scanner,trickbot"
                 const sep = line.trim().split(" ")
                 if (sep.length === 0) return

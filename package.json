@@ -1,6 +1,6 @@
 {
   "name": "ioc-tool",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "IOC tool",
   "main": "index.js",
   "scripts": {
