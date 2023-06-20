@@ -5,7 +5,7 @@ const readline = require("readline")
 
 var ApiPath = '/api/';
 
-const Networks = []
+const Networks = ['https://api.diventry.com']
 
 function GetNetwork() {
     return (Networks[0])
@@ -68,8 +68,40 @@ function RouteNetwork(rcs) {
     return (`${GetNetwork()}${ApiPath}${rcs}`)
 }
 
-async function SendFile(file, bulk = 100, useProgress = true) {
-    return (new Promise((accept) => {
+async function SendFile(file, bulk = 100, useProgress = true, useDeDup=true) {
+    return (new Promise(async (accept) => {
+
+        // cela ne pose pas de soucis de faire du dédoublage sur un hash
+        // il peut encaisser plusieurs millions d'entrées et peut être
+        // optimisé pour une usage plus large. Le cas échéant utiliser Level
+        const deDup = {}
+        const lastFile = `${file}.last`
+        if(useDeDup === true && process.env.FULL !== "yes") {
+            // load last file
+            try {
+                const lines = fs.readFileSync(lastFile).toString().split("\n")
+                for(var line of lines)
+                    if(line.length > 0) deDup[line] = true
+                console.log(`Last file loaded ${lastFile}`)
+            } catch(e) {}
+
+            // rebuild file
+            try {
+                const oldFile = file
+                file = `${file}.current`
+                const newLines = []
+                const lines = fs.readFileSync(oldFile).toString().split("\n")
+                for(var line of lines) {
+                    if(line.length === 0) continue
+                    if(deDup[line] !== true) 
+                        newLines.push(`${line}`)
+                }
+                fs.writeFileSync(file, newLines.join("\n"))
+                console.log(`Differencial in ${file}`)
+            } catch(e) { console.log(e) }
+        }
+
+        /// process file
         const allIps = []
         var counter = 0
         var processed = 0
@@ -82,8 +114,12 @@ async function SendFile(file, bulk = 100, useProgress = true) {
 
         async function dump() {
             if (allIps.length === 0 && stop === true) {
-                if (useProgress === true)
+                if (useProgress === true) {
                     progress.stop()
+                    console.log(`Saving last file to ${lastFile}`)
+                    fs.renameSync(file, lastFile)
+                }
+                    
                 accept()
                 return
             }
@@ -104,9 +140,10 @@ async function SendFile(file, bulk = 100, useProgress = true) {
 
             const ret = await Post("ioc/rx", packet)
             if (ret.error) {
-                if (useProgress === true)
+                if (useProgress === true) 
                     progress.stop()
-
+                
+                
                 accept(ret.error)
                 return
             }
