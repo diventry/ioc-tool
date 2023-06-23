@@ -35,8 +35,8 @@ sc.option('dataDir', {
 
 sc.option('server', {
     abbr: 's',
-    desc: 'Plastering servers to use',
-    default: `https://app.diventry.com`
+    desc: 'Diventry servers to use',
+    default: `https://api.diventry.com`
 });
 
 sc.option('api', {
@@ -72,6 +72,8 @@ sc.option('api', {
 require("./tx")
 require("./download")
 require("./ipset")
+require("./list")
+require("./info")
 
 sc.parse()
 

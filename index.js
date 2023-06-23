@@ -2,10 +2,19 @@ const fs = require('fs')
 const axios = require("axios")
 const cliProgress = require('cli-progress')
 const readline = require("readline")
+const prettyjson = require('prettyjson');
 
 var ApiPath = '/api/';
 
 const Networks = ['https://api.diventry.com']
+
+
+function PrettyShow(data, mode = "pretty") {
+    if (mode === "pretty")
+        console.log(prettyjson.render(data, {}));
+    else
+        console.log(JSON.stringify(data))
+}
 
 function GetNetwork() {
     return (Networks[0])
@@ -86,20 +95,6 @@ async function SendFile(file, bulk = 100, useProgress = true, useDeDup = true) {
                     
                 console.log(`Last file loaded ${lastFile}`)
             } catch (e) { }
-
-            // // rebuild file
-            // try {
-            //     const newLines = []
-            //     const lines = fs.readFileSync(file).toString().split("\n")
-            //     for (var line of lines) {
-            //         if (line.length === 0) continue
-            //         if (deDup[line] !== true)
-            //             newLines.push(`${line}`)
-            //     }
-            //     fs.writeFileSync(file, newLines.join("\n"))
-            //     console.log(`Differencial in ${file}`)
-
-            // } catch (e) { console.log(e) }
         }
 
         /// process file
@@ -200,5 +195,5 @@ module.exports = {
     // SetNetwork,
     RouteNetwork,
     SendFile,
-    // MultiQueueList
+    PrettyShow
 }
