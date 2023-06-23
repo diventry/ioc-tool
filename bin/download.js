@@ -5,6 +5,20 @@ const axios = require("axios");
 
 const { Init, GetNetwork } = require("../index");
 
+async function DownloadToStream(shareToken, output, options) {
+    try {
+        var response = await axios({
+            method: 'get',
+            url: `${GetNetwork()}/download/ip/${shareToken}.txt?ipv4=${!options.noIPv4}&ipv6=${!options.noIPv6}&comments=${!options.noComments}`,
+            responseType: 'stream'
+        });
+        response.data.pipe(output);
+    } catch (e) {
+        return(e.message)
+    }
+    return(null)
+}
+
 sc.command('download', {
     desc: 'Retrieve a list',
     callback: async function (options) {
@@ -32,18 +46,10 @@ sc.command('download', {
             console.log(`Writing to ${options.file}`);
         }
 
-        try {
-            var response = await axios({
-                method: 'get',
-                url: `${GetNetwork()}/download/ip/${options[0]}.txt?ipv4=${!options.noIPv4}&ipv6=${!options.noIPv6}&comments=${!options.noComments}`,
-                responseType: 'stream'
-            });
-            // Pipe the response data to the output stream
-            response.data.pipe(output);
-        } catch (e) {
-            // Display error message if request fails
-            console.error(e.message);
-            process.exit(-1);
+        const ret = await DownloadToStream(options[0], output, options)
+        if(ret) {
+            console.error(ret)
+            process.exit(-1)
         }
 
         if (options.file !== "-")
