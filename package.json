@@ -1,37 +1,37 @@
 {
-    "name": "ioc-tool",
-    "version": "1.1.2",
-    "description": "IOC tool",
-    "main": "index.js",
-    "bin": {
-        "ioc-tool": "./bin/index.js"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/diventry/ioc-tool.git"
-    },
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
-    },
-    "keywords": [
-        "ioc"
-    ],
-    "author": "Michael Vergoz",
-    "license": "ISC",
-    "bugs": {
-        "url": "https://github.com/diventry/ioc-tool/issues"
-    },
-    "homepage": "https://github.com/diventry/ioc-tool#readme",
-    "dependencies": {
-        "axios": "^1.4.0",
-        "cli-progress": "^3.12.0",
-        "cli-table3": "^0.6.3",
-        "mkdirp": "^3.0.1",
-        "prettyjson": "^1.2.5",
-        "subcommander": "^1.0.0"
-    },
-    "devDependencies": {
-        "is-git-dirty": "^2.0.2",
-        "semver": "^7.5.3"
-    }
+ "name": "ioc-tool",
+ "version": "1.1.3",
+ "description": "IOC tool",
+ "main": "index.js",
+ "bin": {
+  "ioc-tool": "./bin/index.js"
+ },
+ "repository": {
+  "type": "git",
+  "url": "git+https://github.com/diventry/ioc-tool.git"
+ },
+ "scripts": {
+  "test": "echo \"Error: no test specified\" && exit 1"
+ },
+ "keywords": [
+  "ioc"
+ ],
+ "author": "Michael Vergoz",
+ "license": "ISC",
+ "bugs": {
+  "url": "https://github.com/diventry/ioc-tool/issues"
+ },
+ "homepage": "https://github.com/diventry/ioc-tool#readme",
+ "dependencies": {
+  "axios": "^1.4.0",
+  "cli-progress": "^3.12.0",
+  "cli-table3": "^0.6.3",
+  "mkdirp": "^3.0.1",
+  "prettyjson": "^1.2.5",
+  "subcommander": "^1.0.0"
+ },
+ "devDependencies": {
+  "is-git-dirty": "^2.0.2",
+  "semver": "^7.5.3"
+ }
 }
