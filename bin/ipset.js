@@ -1,6 +1,7 @@
 const sc = require('subcommander');
 const fs = require('fs');
 const readline = require("readline");
+const crypto = require("crypto");
 const axios = require("axios");
 const { mkdirp } = require("mkdirp")
 const { execSync } = require('child_process');
@@ -18,9 +19,16 @@ function exec(cmd) {
     } catch (e) { }
 }
 
+function idifier(str) {
+    const hash = crypto.createHash("sha256")
+    hash.update(str)
+    const res = hash.digest("hex")
+    return (res.substring(res.length - 10))
+}
+
 async function init(options) {
     const shareToken = options[0]
-    const key = `DIVENTRY_${shareToken.toUpperCase()}`
+    const key = idifier(`DIVENTRY_${shareToken.toUpperCase()}`)
 
     Init(options);
 
@@ -130,7 +138,7 @@ ipset.command('stop', {
         }
 
         const shareToken = options[0]
-        const key = `DIVENTRY_${shareToken.toUpperCase()}`
+        const key = idifier(`DIVENTRY_${shareToken.toUpperCase()}`)
 
         exec(`iptables -D INPUT -j INPUT_${key}`)
         exec(`iptables -D OUTPUT -j OUTPUT_${key}`)
@@ -143,7 +151,7 @@ ipset.command('stop', {
         exec(`ipset flush ${shareToken}IP`)
         exec(`ipset flush ${shareToken}NET`)
 
-       
+
     }
 })
 
