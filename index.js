@@ -4,6 +4,20 @@ const cliProgress = require('cli-progress')
 const readline = require("readline")
 const prettyjson = require('prettyjson');
 
+async function DownloadToStream(shareToken, output, options) {
+    try {
+        var response = await axios({
+            method: 'get',
+            url: `${GetNetwork()}/download/ip/${shareToken}.txt?ipv4=${!options.noIPv4}&ipv6=${!options.noIPv6}&comments=${!options.noComments}`,
+            responseType: 'stream'
+        });
+        response.data.pipe(output);
+    } catch (e) {
+        return (e.message)
+    }
+    return (null)
+}
+
 var ApiPath = '/api/';
 
 const Networks = ['https://api.diventry.com']
@@ -92,7 +106,7 @@ async function SendFile(file, bulk = 100, useProgress = true, useDeDup = true) {
                 for (var line of lines) {
                     deDup[line] = true
                 }
-                    
+
                 console.log(`Last file loaded ${lastFile}`)
             } catch (e) { }
         }
@@ -195,5 +209,6 @@ module.exports = {
     // SetNetwork,
     RouteNetwork,
     SendFile,
-    PrettyShow
+    PrettyShow,
+    DownloadToStream
 }

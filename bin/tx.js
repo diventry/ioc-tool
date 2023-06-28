@@ -86,8 +86,6 @@ ip.command('plaintext', {
                 console.log(ret)
                 process.exit(-1)
             }
-
-            // console.log(ret)
             setTimeout(dump, 100)
         }
         setTimeout(dump)

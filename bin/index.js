@@ -71,7 +71,7 @@ sc.option('api', {
 
 require("./tx")
 require("./download")
-// require("./ipset")
+require("./ipset")
 require("./list")
 require("./info")
 

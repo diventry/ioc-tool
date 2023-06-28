@@ -3,21 +3,9 @@ const fs = require('fs');
 const readline = require("readline");
 const axios = require("axios");
 
-const { Init, GetNetwork } = require("../index");
+const { Init, GetNetwork, DownloadToStream } = require("../index");
 
-async function DownloadToStream(shareToken, output, options) {
-    try {
-        var response = await axios({
-            method: 'get',
-            url: `${GetNetwork()}/download/ip/${shareToken}.txt?ipv4=${!options.noIPv4}&ipv6=${!options.noIPv6}&comments=${!options.noComments}`,
-            responseType: 'stream'
-        });
-        response.data.pipe(output);
-    } catch (e) {
-        return(e.message)
-    }
-    return(null)
-}
+
 
 sc.command('download', {
     desc: 'Retrieve a list',

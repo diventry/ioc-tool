@@ -1,10 +1,10 @@
 {
     "name": "ioc-tool",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "description": "IOC tool",
     "main": "index.js",
     "bin": {
-        "ioc-tool": "./bin/index"
+        "ioc-tool": "./bin/index.js"
     },
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1"
