@@ -20,6 +20,8 @@ To retrieve the list of public IOC lists stored at Diventry, use the following c
 ioc-tool list
 ```
 
+![IOC Tool list output](data/list.png)
+
 You can use the "Share Token" to download or apply a specific list.
 
 ## Download
