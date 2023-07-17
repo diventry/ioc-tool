@@ -30,6 +30,8 @@ async function init(options) {
     const shareToken = options[0]
     const key = idifier(`DIVENTRY_${shareToken.toUpperCase()}`)
 
+    options.noIPv6 = true
+
     Init(options);
 
     await mkdirp(options.dataDir)
@@ -120,7 +122,7 @@ ipset.command('init', {
             console.log("If you are an IOC provider, you can use your share token here");
             process.exit(-1);
         }
-
+        options.noIPv6 = true
         await init(options)
     }
 })
@@ -167,7 +169,8 @@ ipset.command('stream', {
             process.exit(-1);
         }
         const shareToken = options[0]
-
+        options.noIPv6 = true
+        
         await init(options)
 
         async function update() {
