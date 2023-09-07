@@ -91,7 +91,7 @@ function RouteNetwork(rcs) {
     return (`${GetNetwork()}${ApiPath}${rcs}`)
 }
 
-async function SendFile(file, bulk = 100, useProgress = true, useDeDup = true) {
+async function SendFile(file, bulk = 500, type = "ip", useProgress = true, useDeDup = true) {
     return (new Promise(async (accept) => {
 
         // cela ne pose pas de soucis de faire du dédoublage sur un hash
@@ -112,7 +112,7 @@ async function SendFile(file, bulk = 100, useProgress = true, useDeDup = true) {
         }
 
         /// process file
-        const allIps = []
+        const allItems = []
         var counter = 0
         var processed = 0
         var stop = false
@@ -123,7 +123,7 @@ async function SendFile(file, bulk = 100, useProgress = true, useDeDup = true) {
             progress = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
 
         async function dump() {
-            if (allIps.length === 0 && stop === true) {
+            if (allItems.length === 0 && stop === true) {
                 if (useProgress === true) {
                     progress.stop()
                     console.log(`Saving last file to ${lastFile}`)
@@ -133,15 +133,25 @@ async function SendFile(file, bulk = 100, useProgress = true, useDeDup = true) {
                 return
             }
 
-            const packet = {
-                ips: []
-            }
+            const packet = {}
 
-            for (var a = 0; a < parseInt(bulk); a++) {
-                const item = allIps.shift()
-                if (!item) break
-                packet.ips.push(item)
-                processed++
+            if (type === "ip") {
+                packet.ips = []
+                for (var a = 0; a < parseInt(bulk); a++) {
+                    const item = allItems.shift()
+                    if (!item) break
+                    packet.ips.push(item)
+                    processed++
+                }
+            }
+            else if (type === "domain") {
+                packet.domains = []
+                for (var a = 0; a < parseInt(bulk); a++) {
+                    const item = allItems.shift()
+                    if (!item) break
+                    packet.domains.push(item)
+                    processed++
+                }
             }
 
             if (useProgress === true)
@@ -175,7 +185,8 @@ async function SendFile(file, bulk = 100, useProgress = true, useDeDup = true) {
                 if (sep.length === 0) return
 
                 const item = {}
-                item.ip = sep[0]
+                item[type] = sep[0]
+
                 sep.shift()
                 const tags = sep
                     .join(" ")
@@ -183,8 +194,8 @@ async function SendFile(file, bulk = 100, useProgress = true, useDeDup = true) {
                     .map((a) => a.trim())
                     .filter((a) => a.length > 0)
                 if (tags.length > 0) item.tags = tags
-                if (item.ip.length === 0) return
-                allIps.push(item)
+                if (item[type].length === 0) return
+                allItems.push(item)
                 counter++
                 if (useProgress === true)
                     progress.start(counter, processed)
