@@ -15,7 +15,7 @@ var ipset = sc.command('ipset', {
 function exec(cmd) {
     console.log(cmd)
     try {
-        // execSync(cmd, { stdio: 'inherit' })
+        execSync(cmd, { stdio: 'inherit' })
     } catch (e) { }
 }
 
