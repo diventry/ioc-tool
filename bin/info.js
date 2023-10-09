@@ -29,7 +29,8 @@ sc.command('info', {
             })
             delete response?.data?.data?.ips
 
-            response.data.data.downloadURL = `${GetNetwork()}/download/ip/${options[0]}.txt`
+            response.data.data.IpDownloadURL = `${GetNetwork()}/download/ip/${options[0]}.txt`
+            response.data.data.DomainDownloadURL = `${GetNetwork()}/download/domain/${options[0]}.txt`
             response.data.data.ipDownload = response?.data?.data?.ipDownloads[0]
             delete response?.data?.data?.ipDownloads
             PrettyShow(response?.data?.data)

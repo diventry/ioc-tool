@@ -15,7 +15,7 @@ var ipset = sc.command('ipset', {
 function exec(cmd) {
     console.log(cmd)
     try {
-        execSync(cmd, { stdio: 'inherit' })
+        // execSync(cmd, { stdio: 'inherit' })
     } catch (e) { }
 }
 
@@ -23,7 +23,7 @@ function idifier(str) {
     const hash = crypto.createHash("sha256")
     hash.update(str)
     const res = hash.digest("hex")
-    return (res.substring(res.length - 10))
+    return (res.substring(res.length - 10).toUpperCase())
 }
 
 async function init(options) {
@@ -152,13 +152,11 @@ ipset.command('stop', {
 
         exec(`ipset flush ${shareToken}IP`)
         exec(`ipset flush ${shareToken}NET`)
-
-
     }
 })
 
 ipset.command('stream', {
-    desc: 'Linux ipset stream controler',
+    desc: 'Update IPset while list changes',
     callback: async function (options) {
         if (!options[0] || options[0].length === 0) {
             // Display error message if no share token is specified
