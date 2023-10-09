@@ -5,10 +5,18 @@ const readline = require("readline")
 const prettyjson = require('prettyjson');
 
 async function DownloadToStream(shareToken, output, options) {
+    if (!options.hasOwnProperty("type"))
+        options.type = "ip"
     try {
+        const query = [
+            `ipv4=${!options.noIPv4}`,
+            `ipv6=${!options.noIPv6}`,
+            `host=${!options.noHost}`,
+            `comments=${!options.noComments}`,
+        ]
         var response = await axios({
             method: 'get',
-            url: `${GetNetwork()}/download/ip/${shareToken}.txt?ipv4=${!options.noIPv4}&ipv6=${!options.noIPv6}&comments=${!options.noComments}`,
+            url: `${GetNetwork()}/download/${options.type}/${shareToken}.txt?${query.join("&")}`,
             responseType: 'stream'
         });
         response.data.pipe(output);

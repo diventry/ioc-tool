@@ -28,6 +28,7 @@ sc.command('info', {
                 url: RouteNetwork(`ioc/public/list/${options[0]}`),
             })
             delete response?.data?.data?.ips
+
             response.data.data.downloadURL = `${GetNetwork()}/download/ip/${options[0]}.txt`
             response.data.data.ipDownload = response?.data?.data?.ipDownloads[0]
             delete response?.data?.data?.ipDownloads

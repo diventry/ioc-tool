@@ -47,6 +47,10 @@ sc.command('download', {
     abbr: 'f',
     desc: 'Specify a file to store data. Default: STDOUT',
     default: "-"
+}).option('type', {
+    abbr: 't',
+    desc: 'Type of content, ip or domain',
+    default: "ip"
 }).option('noIPv4', {
     abbr: '4',
     desc: 'Remove IPv4 from the downloaded file. Default: false',
@@ -62,4 +66,9 @@ sc.command('download', {
     desc: 'Remove all comments from the downloaded file. Default: false',
     default: false,
     flag: true
-});
+}).option('noHost', {
+    abbr: 'H',
+    desc: 'When dumping domains, provide a flat domain file',
+    default: false,
+    flag: true
+})
