@@ -13,7 +13,7 @@ sc.command('list', {
 
         try {
             var table = new Table({
-                head: ['Type', 'Name', 'Type', 'Main Stream', 'Share Token']
+                head: ['Name', 'Last Update', 'IPs', 'Domains', 'Share Token']
             });
 
             var response = await axios({
@@ -23,11 +23,12 @@ sc.command('list', {
 
             for (var list of response?.data?.data) {
                 table.push([
-                    list.type.toUpperCase(),
                     list.name,
                     new Date(list.updatedAt).toLocaleString(),
-                    list.mainStream === true ? "Yes" : "No",
-                    list.shareToken,
+
+                    list.ipDownloads.length === 0 || list.ipDownloads[0].total === 0 ? 'No' : `Yes (${list.ipDownloads[0].total})`,
+                    list.domainDownloads.length === 0 || list.domainDownloads[0].total === 0 ? 'No' : `Yes (${list.domainDownloads[0].total})`,
+                    list.shareToken
                 ])
             }
 
