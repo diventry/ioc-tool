@@ -28,7 +28,8 @@
   "cli-table3": "^0.6.3",
   "mkdirp": "^3.0.1",
   "prettyjson": "^1.2.5",
-  "subcommander": "^1.0.0"
+  "subcommander": "^1.0.0",
+  "tail": "^2.2.6"
  },
  "devDependencies": {
   "is-git-dirty": "^2.0.2",

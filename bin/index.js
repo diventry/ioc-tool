@@ -74,6 +74,7 @@ require("./download")
 require("./ipset")
 require("./list")
 require("./info")
+require("./watch")
 
 sc.parse()
 
