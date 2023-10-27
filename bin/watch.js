@@ -104,6 +104,7 @@ sc.command('watch', {
             setTimeout(dump, 1000)
         }
         setTimeout(dump, 1000)
+        
         // load module
         const moduleDirs = [__dirname + "/modules"]
         for (var moduleDir of moduleDirs) {

@@ -4,27 +4,27 @@ const sc = require('subcommander');
 const os = require('os');
 const fs = require('fs');
 const ioc = require("../index")
-
+const { mkdirp } = require("mkdirp")
 const axios = require("axios");
 
 axios.postCheck = async function (a, b, c) {
 
-  try {
-    const ret = await axios.post(a, b, c);
-    if (!ret) {
-      console.log("Null return")
-      process.exit(-1)
-    }
-    if (!ret.data && ret.data.error) {
-      console.log(ret.data)
-      process.exit(-1)
-    }
+    try {
+        const ret = await axios.post(a, b, c);
+        if (!ret) {
+            console.log("Null return")
+            process.exit(-1)
+        }
+        if (!ret.data && ret.data.error) {
+            console.log(ret.data)
+            process.exit(-1)
+        }
 
-    return(ret.data)
-  } catch (e) {
-    console.log(e.message)
-    process.exit(-1)
-  }
+        return (ret.data)
+    } catch (e) {
+        console.log(e.message)
+        process.exit(-1)
+    }
 }
 
 sc.option('dataDir', {
@@ -45,29 +45,31 @@ sc.option('api', {
     default: `/api/`
 });
 
+sc.command('api', {
+    desc: 'Set and save the API key',
+    callback: async function (options) {
+        ioc.Init(options);
 
-// sc.option('configFile', {
-//     abbr: 'f',
-//     desc: 'Configuration file',
-//     default: `${os.homedir()}/.diventry/config.js`
-// });
+        if (!options[0] || options[0].length === 0) {
+            console.log(`Please specify your API key`)
+            process.exit(-1)
+        }
 
-// sc.command('server', {
-//     desc: 'Run the main server',
-//     callback: async function (options) {
-//         const kernel = new divent({ configFile: options.configFile })
-//         await kernel.start()
-//     }
-// })
+        const newConfig = {
+            apiKey: options[0],
+            dataDir: options.dataDir,
+            server: options.server,
+            api: options.api,
+        }
 
-// sc.command('key', {
-//     desc: 'Build 32bytes key',
-//     callback: async function (options) {
-//         const key = crypto.randomBytes(32).toString("base64")
-//         console.log(key)
-//     }
-// })
+        const filename = `${options.dataDir}/config.json`
+        await mkdirp(options.dataDir)
 
+        fs.writeFileSync(filename, JSON.stringify(newConfig, null, " "))
+
+        console.log(`Configuration saved in ${filename}`)
+    }
+})
 
 require("./tx")
 require("./download")
