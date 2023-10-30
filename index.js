@@ -87,6 +87,8 @@ function Init(options) {
 
     if (options.api)
         ApiPath = options.api;
+    else if (configjs.api)
+        ApiPath = configjs.api;
 
     if (process.env.API_KEY)
         axios.defaults.headers.common['Authorization'] = process.env.API_KEY
@@ -95,6 +97,8 @@ function Init(options) {
 
     if (!options.server && process.env.SERVER)
         SetNetwork([process.env.SERVER])
+    else if (configjs.server)
+        SetNetwork([configjs.server])
     else if (options.server) {
         const net = [];
         const t = options.server.split(",");
