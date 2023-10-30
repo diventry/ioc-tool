@@ -83,7 +83,7 @@ function Init(options) {
         const raw = fs.readFileSync(`${options.dataDir}/config.json`)
         configjs = JSON.parse(raw)
         console.log("Loading config.js")
-    } catch (e) { console.log(e) }
+    } catch (e) { }
 
     if (options.api)
         ApiPath = options.api;
