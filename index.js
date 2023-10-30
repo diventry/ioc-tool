@@ -77,11 +77,21 @@ async function Post(resource, data, ttl = 0) {
 
 function Init(options) {
 
+    // try to load the config.js
+    var configjs = {}
+    try {
+        const raw = fs.readFileSync(`${options.dataDir}/config.json`)
+        configjs = JSON.parse(raw)
+        console.log("Loading config.js")
+    } catch (e) { console.log(e) }
+
     if (options.api)
         ApiPath = options.api;
 
     if (process.env.API_KEY)
         axios.defaults.headers.common['Authorization'] = process.env.API_KEY
+    else if (configjs.apiKey)
+        axios.defaults.headers.common['Authorization'] = configjs.apiKey
 
     if (!options.server && process.env.SERVER)
         SetNetwork([process.env.SERVER])
