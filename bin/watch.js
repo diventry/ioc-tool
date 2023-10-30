@@ -67,7 +67,7 @@ sc.command('watch', {
                     if (!key) break
                     packet.ips.push({
                         ip: key,
-                        tags: ips[key]
+                        tags: Object.keys(ips[key])
                     })
                     delete ips[key]
                     rest--
@@ -78,7 +78,7 @@ sc.command('watch', {
                     if (!key) break
                     packet.domains.push({
                         ip: key,
-                        tags: domains[key]
+                        tags: Object.keys(domains[key])
                     })
                     delete domains[key]
                     rest--
@@ -92,8 +92,10 @@ sc.command('watch', {
 
                     const ret = await Post("ioc/rx", packet)
                     if (ret.error) {
-                        console.log(ret.error)
-                        process.exit(0)
+                        // reinject IPs
+                        for (item of packet.ips)
+                            kernel.markIP(item.ip, item.tags)
+                        console.log("Will retry later")
                     }
                 }
 
@@ -104,7 +106,7 @@ sc.command('watch', {
             setTimeout(dump, 1000)
         }
         setTimeout(dump, 1000)
-        
+
         // load module
         const moduleDirs = [__dirname + "/modules"]
         for (var moduleDir of moduleDirs) {
@@ -151,7 +153,7 @@ sc.command('watch', {
                     rl.on('close', accept)
                 })
 
-                if (oneShot === true) break
+                if (oneShot === true) continue
 
                 console.log(`Watching ${file}`)
                 const tail = new Tail(file)
