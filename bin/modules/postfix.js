@@ -21,7 +21,7 @@ module.exports = {
                     const match = line.match(rule.regex)
                     if (match) {
                         if (rule.ipIndex) {
-                            console.log(match[rule.ipIndex], rule.tags)
+                            // console.log(match[rule.ipIndex], rule.tags)
                             kernel.markIP(match[rule.ipIndex], rule.tags)
                         }
                         break
